@@ -772,6 +772,7 @@ def print_text_to_text_citation(
         if print_top and textno == 0:
             break
 
+
 def get_similar_image_from_query(
     project_id: str,
     text_metadata_df: pd.DataFrame,
@@ -804,15 +805,27 @@ def get_similar_image_from_query(
     if image_emb:
         # Calculate cosine similarity between query image and metadata images
         cosine_scores = image_metadata_df.apply(
-            lambda x: get_cosine_score(x, column_name,
-                                        get_user_query_image_embeddings(project_id,image_query_path, embedding_size)),
-            axis=1)
+            lambda x: get_cosine_score(
+                x,
+                column_name,
+                get_user_query_image_embeddings(
+                    project_id, image_query_path, embedding_size
+                ),
+            ),
+            axis=1,
+        )
     else:
         # Calculate cosine similarity between query text and metadata image captions
         cosine_scores = image_metadata_df.apply(
-            lambda x: get_cosine_score(x, column_name,
-                                        get_user_query_text_embeddings(project_id,query, embedding_size=embedding_size)),
-            axis=1)
+            lambda x: get_cosine_score(
+                x,
+                column_name,
+                get_user_query_text_embeddings(
+                    project_id, query, embedding_size=embedding_size
+                ),
+            ),
+            axis=1,
+        )
 
     # Remove same image comparison score when user image is matched exactly with metadata image
     cosine_scores = cosine_scores[cosine_scores < 1.0]
@@ -829,26 +842,39 @@ def get_similar_image_from_query(
         final_images[matched_imageno] = {}
 
         # Store cosine score
-        final_images[matched_imageno]['cosine_score'] = top_n_cosine_values[matched_imageno]
+        final_images[matched_imageno]["cosine_score"] = top_n_cosine_values[
+            matched_imageno
+        ]
 
         # Load image from file
-        final_images[matched_imageno]['image_object'] = Image.load_from_file(
-            image_metadata_df.iloc[indexvalue]['img_path'])
+        final_images[matched_imageno]["image_object"] = Image.load_from_file(
+            image_metadata_df.iloc[indexvalue]["img_path"]
+        )
 
         # Store image path
-        final_images[matched_imageno]['img_path'] = image_metadata_df.iloc[indexvalue]['img_path']
+        final_images[matched_imageno]["img_path"] = image_metadata_df.iloc[indexvalue][
+            "img_path"
+        ]
 
         # Store page number
-        final_images[matched_imageno]['page_num'] = image_metadata_df.iloc[indexvalue]['page_num']
+        final_images[matched_imageno]["page_num"] = image_metadata_df.iloc[indexvalue][
+            "page_num"
+        ]
 
         # Extract page text from text metadata dataframe
-        final_images[matched_imageno]['page_text'] = text_metadata_df[
-            text_metadata_df['page_num'].isin([final_images[matched_imageno]['page_num']])]['text'].values
+        final_images[matched_imageno]["page_text"] = text_metadata_df[
+            text_metadata_df["page_num"].isin(
+                [final_images[matched_imageno]["page_num"]]
+            )
+        ]["text"].values
 
         # Store image description
-        final_images[matched_imageno]['image_description'] = image_metadata_df.iloc[indexvalue]['img_desc']
+        final_images[matched_imageno]["image_description"] = image_metadata_df.iloc[
+            indexvalue
+        ]["img_desc"]
 
     return final_images
+
 
 def get_similar_text_from_query(
     project_id: str,
